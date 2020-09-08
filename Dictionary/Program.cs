@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Dictionary
 {
@@ -7,13 +8,15 @@ namespace Dictionary
     {
         static void Main(string[] args)
         {
-            Dictionary<Foo, string> keyValuePairs = new Dictionary<Foo, string>();
+            Dictionary<Foo, string> keyValuePairs = new Dictionary<Foo, string>(30, new FooEqualityComparer());
             Foo foo1 = new Foo();
             foo1.FooId = 1;
             foo1.FooName = "foo1";
+            foo1.FooDescription = "foo1descr";
             Foo foo2 = new Foo();
             foo2.FooId = 2;
-            foo2.FooName = "foo1";
+            foo2.FooName = "foo2";
+            foo2.FooDescription = "foo2descr";
             keyValuePairs.Add(foo1, "foo100");
             keyValuePairs.Add(foo2, "foo200");
 
@@ -33,19 +36,19 @@ namespace Dictionary
     {
         public int FooId { get; set; }
         public string FooName { get; set; }
-        public override int GetHashCode()
+        public string FooDescription { get; set; }
+    }
+
+    class FooEqualityComparer : IEqualityComparer<Foo>
+    {
+        public bool Equals([AllowNull] Foo x, [AllowNull] Foo y)
         {
-            return new { FooId, FooName }.GetHashCode();
+            return x.FooId == y.FooId && y.FooName == x.FooName;
         }
 
-        public override bool Equals(object obj)
+        public int GetHashCode([DisallowNull] Foo obj)
         {
-            return Equals(obj as Foo);
-        }
-
-        private bool Equals(Foo obj)
-        {
-            return obj != null && obj.FooId == this.FooId && obj.FooName == this.FooName;
+            return new { obj.FooId, obj.FooName }.GetHashCode();
         }
     }
 }
